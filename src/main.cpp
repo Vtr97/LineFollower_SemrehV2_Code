@@ -11,6 +11,8 @@ QTRSensors sArray;
 BluetoothSerial SerialBT;
 Adafruit_NeoPixel led_stip(LED_COUNT, led, NEO_GRB + NEO_KHZ800); // Declare our NeoPixel strip object
 
+char comando_bt;
+
 float Ki = 0; // 0.002 
 float Kp = 0.043; // 0.04352
 float Kd = 0.25; // 0.0992
@@ -194,6 +196,22 @@ void ler_sens_lat_dir(void * parameter){
   }
 }
 
+
+void controle_bt(char ComandoBt){
+  comando_bt = (char)SerialBT.read();
+  if (Serial.available()) {
+    SerialBT.write(Serial.read());
+  
+  }
+  if (SerialBT.available()) {
+    if(comando_bt=='1'){
+      while(true){
+        controle_motores(0,0);
+      }
+    }
+  }
+}
+
 void setup()
 {
   Serial.begin(115200);
@@ -243,6 +261,7 @@ void setup()
 int flag = 0;
 void loop()
 {
+  controle_bt(comando_bt);
   int inputValue = analogRead(s_lat_dir);
   if (inputValue < 2000 && flag==0) {
     SerialBT.println("INICIO/FIM");
